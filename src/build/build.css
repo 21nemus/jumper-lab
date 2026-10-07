@@ -1,0 +1,114 @@
+.build {
+  position: absolute;
+  left: 50%;
+  bottom: calc(18px + var(--safe-b));
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - 32px));
+  padding: 14px 18px 12px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--cream-0) 94%, transparent);
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 60px rgba(60, 44, 24, 0.2);
+  backdrop-filter: blur(10px);
+  z-index: 5;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.build[hidden] {
+  display: none;
+}
+.b-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mint-deep);
+}
+.b-dots {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  display: flex;
+  gap: 6px;
+}
+.b-dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted);
+}
+.b-dots i.now {
+  border-color: var(--mint-deep);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--mint) 35%, transparent);
+}
+.b-dots i.done {
+  background: var(--mint);
+  border-color: var(--mint-deep);
+}
+.b-title {
+  margin: 4px 0 2px;
+  font-size: 18px;
+}
+.b-text {
+  margin: 0 0 8px;
+  color: #3d4046;
+}
+.b-try label {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  align-items: center;
+  font-weight: 700;
+  font-size: 12.5px;
+}
+.b-try input {
+  grid-column: 1 / -1;
+  width: 100%;
+  accent-color: var(--mint-deep);
+}
+.b-try-v {
+  justify-self: end;
+  font-variant-numeric: tabular-nums;
+  color: var(--mint-deep);
+}
+.b-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.b-note {
+  margin: 10px 0 0;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.hud.building .mission,
+.hud.building .actions,
+.hud.building .touch,
+.hud.building .legend,
+.hud.building .approx,
+.hud.building .timer {
+  opacity: 0;
+  pointer-events: none !important;
+}
+.hud.building .mission *,
+.hud.building .actions *,
+.hud.building .touch * {
+  pointer-events: none !important;
+}
+@media (max-width: 720px) {
+  .build {
+    left: calc(8px + var(--safe-l));
+    right: calc(8px + var(--safe-r));
+    width: auto;
+    transform: none;
+    bottom: calc(8px + var(--safe-b));
+    padding: 12px 14px 10px;
+  }
+  .b-title {
+    font-size: 16px;
+  }
+  .b-note {
+    display: none;
+  }
+}

@@ -1,0 +1,71 @@
+:root {
+  --cream-0: #fbf7f0;
+  --cream-1: #f3ece1;
+  --cream-2: #e9dfd0;
+  --wood: #c8a27a;
+  --mint: #5fc4a6;
+  --mint-deep: #2e8c73;
+  --charcoal: #23262b;
+  --muted: #6b6f75;
+  --line: rgba(35, 38, 43, 0.12);
+  --shadow: 0 10px 30px rgba(60, 44, 24, 0.12), 0 2px 6px rgba(60, 44, 24, 0.08);
+  --radius: 14px;
+  --font: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-r: env(safe-area-inset-right, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--cream-1);
+  color: var(--charcoal);
+  font-family: var(--font);
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+canvas.stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  outline: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2.5px solid var(--mint-deep);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

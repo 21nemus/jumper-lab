@@ -1,0 +1,148 @@
+/* The guided tour: captions top left (the Build panel sits bottom centre, the Inspect panel on the right),
+   everything else hidden so a screen recording shows only the scene, the captions and the live panels. */
+.tour-cap {
+  position: absolute;
+  left: calc(24px + var(--safe-l));
+  top: calc(22px + var(--safe-t));
+  max-width: min(620px, calc(100vw - 48px));
+  padding: 14px 20px 15px 18px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--cream-0) 74%, transparent);
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  box-shadow: 0 14px 40px rgba(60, 44, 24, 0.13);
+  backdrop-filter: blur(12px);
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.45s, transform 0.45s;
+  z-index: 8;
+}
+.tour-cap.on {
+  opacity: 1;
+  transform: none;
+}
+.tc-line {
+  font-size: clamp(26px, 3.6vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.08;
+  color: var(--charcoal);
+}
+.tc-sub {
+  margin-top: 6px;
+  font-size: clamp(14px, 1.45vw, 18px);
+  font-weight: 500;
+  color: #3d4046;
+}
+.tc-speed {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--cream-0);
+  background: color-mix(in srgb, var(--charcoal) 78%, transparent);
+}
+.tc-speed:empty {
+  display: none;
+}
+.tour-end {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.9s;
+  color: var(--charcoal);
+  background: color-mix(in srgb, var(--cream-0) 86%, transparent);
+  backdrop-filter: blur(8px);
+  z-index: 9;
+}
+.tour-end.on {
+  opacity: 1;
+}
+.te-title {
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  font-size: clamp(30px, 6vw, 64px);
+}
+.te-line {
+  font-size: clamp(18px, 2.6vw, 28px);
+  margin-top: 4px;
+}
+.te-credit {
+  margin-top: 18px;
+  font-size: clamp(13px, 1.3vw, 16px);
+  color: var(--muted);
+}
+.tour-stop {
+  position: absolute;
+  right: calc(16px + var(--safe-r));
+  top: calc(16px + var(--safe-t));
+  display: none;
+  align-items: center;
+  gap: 7px;
+  z-index: 21;
+  transition: opacity 0.3s;
+}
+.tour-stop svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+}
+.tour-stop kbd {
+  font-size: 11px;
+}
+body.touring .tour-stop {
+  display: inline-flex;
+}
+
+/* while touring: only the scene, the captions and the live panels */
+body.touring .hud .top,
+body.touring .hud .mission,
+body.touring .hud .actions,
+body.touring .hud .touch,
+body.touring .hud .bottom,
+body.touring .hud .toast,
+body.touring .build .b-row,
+body.touring .build .b-note,
+body.touring .inspect .i-resume,
+body.touring .inspect .i-more,
+body.touring .inspect .i-note {
+  opacity: 0;
+  pointer-events: none !important;
+  transition: opacity 0.4s;
+}
+body.touring .build,
+body.touring .inspect {
+  pointer-events: none;
+}
+body.touring .build *,
+body.touring .inspect * {
+  pointer-events: none !important;
+}
+body.touring .inspect {
+  top: calc(16px + var(--safe-t));
+}
+/* idle pointer: hide it and the stop button (Esc still stops) */
+body.touring.tour-idle,
+body.touring.tour-idle * {
+  cursor: none !important;
+}
+body.touring.tour-idle .tour-stop,
+body.capture .tour-stop {
+  opacity: 0;
+  pointer-events: none;
+}
+@media (max-width: 720px) {
+  .tour-cap {
+    left: calc(12px + var(--safe-l));
+    top: calc(12px + var(--safe-t));
+    max-width: calc(100vw - 24px);
+    padding: 10px 14px 11px;
+  }
+}

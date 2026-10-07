@@ -1,0 +1,35 @@
+{
+  "_note": "The upstream files this project reads, pinned by commit. `npm run upstream:lock` resolves sizes and hashes into upstream.lock.json; `npm run upstream:fetch` downloads and verifies them into tools/.cache/upstream/. A path ending in '/' means every file under it.",
+  "sources": [
+    {
+      "id": "jumper",
+      "repo": "KingKongRobotics/jumper",
+      "commit": "61d065219fca767f3142c8f10aff59eae5a5a004",
+      "license": "Apache-2.0",
+      "copyright": "Copyright 2026 KingKong Robotics",
+      "paths": [
+        "LICENSE",
+        "NOTICE",
+        "docs/HARDWARE.md",
+        "assets/jumper/jumper.xml",
+        "assets/jumper/urdf/jumper/meshes/visual/",
+        "assets/jumper/motor/motor_config.yaml",
+        "assets/jumper/camera/camera_config.yaml",
+        "tasks/jumper/common/constants.py",
+        "tasks/jumper/five_foot/claw.py",
+        "tasks/jumper/five_foot/deploy/lib.rs",
+        "tasks/jumper/five_foot/README.md",
+        "out/bundle_example/jumper/locomotion.json",
+        "out/bundle_example/jumper/claw_left.json",
+        "out/bundle_example/jumper/gesture_hello.json",
+        "out/bundle_example/jumper/gesture_bow.json",
+        "out/bundle_example/jumper/gesture_salute.json",
+        "out/bundle_example/jumper/gesture_paw.json",
+        "out/bundle_example/jumper/hello.motion.trajectory.json",
+        "out/bundle_example/jumper/bow.motion.trajectory.json",
+        "out/bundle_example/jumper/salute.motion.trajectory.json",
+        "out/bundle_example/jumper/paw.motion.trajectory.json"
+      ]
+    }
+  ]
+}

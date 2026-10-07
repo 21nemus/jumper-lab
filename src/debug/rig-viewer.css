@@ -1,0 +1,96 @@
+.rv-status {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.rv-panel {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  width: min(360px, 46vw);
+  overflow: auto;
+  padding: 14px 14px 18px;
+  background: color-mix(in srgb, var(--cream-0) 92%, transparent);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  font-size: 12px;
+}
+
+.rv-panel h1 {
+  margin: 0 0 2px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.rv-note {
+  margin: 0 0 10px;
+  color: var(--muted);
+}
+
+.rv-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.rv-btn {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.rv-btn:hover {
+  border-color: var(--mint-deep);
+}
+
+.rv-limb {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  margin: 8px 0;
+  padding: 4px 8px 6px;
+}
+
+.rv-limb legend {
+  font-weight: 700;
+  padding: 0 4px;
+}
+
+.rv-joint {
+  display: grid;
+  grid-template-columns: 52px 1fr 52px 64px;
+  align-items: center;
+  gap: 6px;
+}
+
+.rv-jname,
+.rv-lim,
+.rv-val {
+  font-variant-numeric: tabular-nums;
+}
+
+.rv-lim {
+  color: var(--muted);
+  text-align: right;
+}
+
+.rv-joint input {
+  width: 100%;
+  accent-color: var(--mint-deep);
+}
+
+.rv-stats {
+  margin: 10px 0 0;
+  font-size: 11px;
+  white-space: pre-wrap;
+  color: var(--muted);
+}

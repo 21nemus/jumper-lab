@@ -1,0 +1,116 @@
+.menu-dlg {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: rgba(35, 38, 43, 0.18);
+  display: flex;
+  justify-content: flex-end;
+}
+.menu-dlg[hidden] {
+  display: none;
+}
+.mn-sheet {
+  width: min(400px, 100vw);
+  height: 100%;
+  overflow: auto;
+  background: var(--cream-0);
+  padding: calc(16px + var(--safe-t)) calc(18px + var(--safe-r)) calc(24px + var(--safe-b)) 18px;
+  box-shadow: -20px 0 60px rgba(60, 44, 24, 0.2);
+  font-size: 13.5px;
+  line-height: 1.45;
+  overscroll-behavior: contain;
+}
+.mn-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mn-head h2 {
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: 0.14em;
+}
+.mn-sheet section {
+  border-top: 1px solid var(--line);
+  margin-top: 14px;
+  padding-top: 12px;
+}
+.mn-sheet h3 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.mn-sheet h3 .tag {
+  margin-left: 6px;
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+.seg {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+}
+.seg button {
+  border: 0;
+  background: transparent;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.seg button[aria-pressed='true'] {
+  background: var(--charcoal);
+  color: var(--cream-0);
+}
+.mn-best,
+.mn-small {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 8px 0 0;
+}
+.mn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px var(--line), var(--shadow);
+  cursor: pointer;
+}
+.swatch[aria-pressed='true'] {
+  box-shadow: 0 0 0 2.5px var(--charcoal), var(--shadow);
+}
+.mn-facts,
+.mn-credits {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 7px;
+  font-size: 12.5px;
+}
+.mn-credits {
+  margin-top: 10px;
+}
+.mn-credits a,
+.mn-small a {
+  color: var(--mint-deep);
+}
+@media (max-width: 720px) {
+  .menu-dlg {
+    align-items: flex-end;
+  }
+  .mn-sheet {
+    width: 100%;
+    height: 82%;
+    border-radius: 18px 18px 0 0;
+  }
+}

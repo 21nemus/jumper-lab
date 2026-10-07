@@ -1,0 +1,231 @@
+.inspect {
+  position: absolute;
+  top: calc(64px + var(--safe-t));
+  right: calc(16px + var(--safe-r));
+  bottom: calc(16px + var(--safe-b));
+  width: min(380px, 42vw);
+  overflow: auto;
+  padding: 16px 16px 14px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--cream-0) 94%, transparent);
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 60px rgba(60, 44, 24, 0.2);
+  backdrop-filter: blur(10px);
+  font-size: 13.5px;
+  line-height: 1.45;
+  z-index: 5;
+  overscroll-behavior: contain;
+}
+.inspect[hidden] {
+  display: none;
+}
+.i-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+.i-kicker {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #4f8fd6;
+}
+.i-title {
+  margin: 2px 0 0;
+  font-size: 19px;
+}
+.i-sub {
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.i-resume kbd {
+  font-family: var(--font);
+  font-size: 10px;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 0 4px;
+  margin-left: 4px;
+  opacity: 0.6;
+}
+.i-limbs,
+.i-views {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0 4px;
+}
+.i-chip {
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 999px;
+  padding: 5px 11px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.i-chip[aria-pressed='true'] {
+  background: var(--charcoal);
+  color: var(--cream-0);
+  border-color: var(--charcoal);
+}
+.i-sentence {
+  margin: 10px 0 8px;
+}
+.i-sentence strong {
+  color: var(--charcoal);
+}
+a.src {
+  font-size: 11.5px;
+  color: var(--mint-deep);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.i-joints {
+  display: grid;
+  gap: 7px;
+  margin: 10px 0;
+}
+.i-joint {
+  display: grid;
+  grid-template-columns: 10px 1fr 52px;
+  grid-template-areas: 'sw name val' '. bar bar' '. lim lim';
+  column-gap: 8px;
+  align-items: center;
+  font-size: 12.5px;
+}
+.i-joint .sw {
+  grid-area: sw;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.i-joint .jn {
+  grid-area: name;
+  color: var(--muted);
+}
+.i-joint .jn b {
+  color: var(--charcoal);
+  margin-right: 4px;
+}
+.i-joint .val {
+  grid-area: val;
+  text-align: right;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.i-joint .bar {
+  grid-area: bar;
+  position: relative;
+  height: 6px;
+  border-radius: 6px;
+  background: var(--cream-2);
+  margin-top: 3px;
+}
+.i-joint .mark {
+  position: absolute;
+  top: -3px;
+  width: 4px;
+  height: 12px;
+  margin-left: -2px;
+  border-radius: 2px;
+  background: var(--charcoal);
+}
+.i-joint .lim {
+  grid-area: lim;
+  font-size: 11px;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.i-empty {
+  color: var(--muted);
+  margin: 4px 0;
+}
+.i-more {
+  margin: 8px 0;
+}
+.i-more summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 12.5px;
+}
+.i-more ul {
+  padding-left: 0;
+  list-style: none;
+  margin: 8px 0 0;
+  display: grid;
+  gap: 8px;
+}
+.i-more li {
+  font-size: 12.5px;
+  color: #3d4046;
+}
+.tag {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 1px 6px;
+  border-radius: 4px;
+  vertical-align: 1px;
+  white-space: nowrap;
+}
+.tag.source {
+  background: #23262b;
+  color: #fbf7f0;
+}
+.tag.model {
+  background: #d8efe7;
+  color: #1f6b56;
+}
+.tag.training {
+  background: #e3e9f6;
+  color: #355c9a;
+}
+.tag.game {
+  background: #f6e7cf;
+  color: #8a5a1a;
+}
+.i-note {
+  margin: 10px 0 0;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+.hud.inspecting .mission,
+.hud.inspecting .actions,
+.hud.inspecting .touch,
+.hud.inspecting .legend,
+.hud.inspecting .approx {
+  opacity: 0;
+  pointer-events: none !important;
+}
+.hud.inspecting .mission *,
+.hud.inspecting .actions *,
+.hud.inspecting .touch * {
+  pointer-events: none !important;
+}
+
+@media (max-width: 720px) {
+  .inspect {
+    top: auto;
+    left: calc(8px + var(--safe-l));
+    right: calc(8px + var(--safe-r));
+    bottom: calc(8px + var(--safe-b));
+    width: auto;
+    max-height: 46vh;
+    border-radius: 18px 18px 14px 14px;
+    padding: 12px 14px;
+  }
+  .i-title {
+    font-size: 16.5px;
+  }
+}
+@media (max-height: 480px) and (orientation: landscape) {
+  .inspect {
+    top: calc(8px + var(--safe-t));
+    width: min(340px, 48vw);
+    max-height: none;
+    left: auto;
+  }
+}
