@@ -108,14 +108,17 @@ body.touring .hud .actions,
 body.touring .hud .touch,
 body.touring .hud .bottom,
 body.touring .hud .toast,
-body.touring .build .b-row,
-body.touring .build .b-note,
 body.touring .inspect .i-resume,
 body.touring .inspect .i-more,
 body.touring .inspect .i-note {
   opacity: 0;
   pointer-events: none !important;
   transition: opacity 0.4s;
+}
+/* the Build panel only opens mid-tour, so its buttons and note can leave the layout without a jump */
+body.touring .build .b-row,
+body.touring .build .b-note {
+  display: none;
 }
 body.touring .build,
 body.touring .inspect {

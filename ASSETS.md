@@ -9,13 +9,13 @@ and notice ship next to the files. Sources are pinned in [`SOURCES.md`](SOURCES.
 
 | File | Size | What it is |
 |---|---|---|
-| `assets/robot/jumper.glb` | 511 KB / 375 KB | 41 link meshes, 162,613 triangles. Positions and indices only; normals are rebuilt in a Web Worker on load. |
-| `assets/robot/robot.json` | 30 KB / 7 KB | Kinematic tree, limits, HOME and STAND_Z, stance footprint, claw tables, with per-file SHA-256 of the sources. |
+| `assets/robot/jumper.glb` | 512 KB / 375 KB | 41 link meshes, 162,953 triangles, each link's triangles grouped by part (92 parts). Positions and indices only; normals are rebuilt in a Web Worker on load. Includes one servo body copied from the right rear calf into the right middle calf, whose published mesh lacks it. |
+| `assets/robot/robot.json` | 53 KB / 10 KB | Kinematic tree, limits, HOME and STAND_Z, stance footprint, claw tables, with per-file SHA-256 of the sources; and the parts table (names ours): each part's triangle range, source piece and bounds. |
 | `assets/motions/hello.json` | 56 KB / 7 KB | Recorded "hello" gesture, 7.32 s at 50 Hz. Body position solved from the feet. |
 | `assets/motions/bow.json` | 65 KB / 14 KB | Recorded "bow", 8.56 s. |
 | `assets/motions/salute.json` | 46 KB / 8 KB | Recorded "salute", 6.02 s. |
 | `assets/motions/paw.json` | 48 KB / 7 KB | Recorded "offer a paw", 6.38 s. |
-| `assets/robot/jumper-crowd.glb` | 57 KB / 30 KB | The crab-rave crowd's robot: `jumper.glb` simplified to 8,012 triangles (about 5 %), one node per link. Loaded only when a crab rave starts. |
+| `assets/robot/jumper-crowd.glb` | 57 KB / 30 KB | The crab-rave crowd's robot: `jumper.glb` simplified to 8,038 triangles (about 5 %), one node per link. Loaded only when a crab rave starts. |
 | `assets/robot/LICENSE-jumper-apache-2.0.txt`, `assets/robot/NOTICE-jumper.txt` | — | Upstream's license and notice, unchanged. |
 
 ## Original to JUMPER LAB (MIT)
@@ -40,12 +40,12 @@ and notice ship next to the files. Sources are pinned in [`SOURCES.md`](SOURCES.
 
 | | Size |
 |---|---|
-| JavaScript (three.js + app) | ~210 KB |
+| JavaScript (three.js + app) | ~225 KB |
 | CSS + HTML | ~8 KB |
 | Fonts | 28 KB |
-| `robot.json` | 7 KB |
-| `jumper.glb` | 511 KB raw (375 KB if the host gzips `.glb`) |
-| **Total before first play** | **≈ 0.64–0.76 MB** |
+| `robot.json` | 10 KB |
+| `jumper.glb` | 512 KB raw (375 KB if the host gzips `.glb`) |
+| **Total before first play** | **≈ 0.65–0.78 MB** |
 | Gestures (loaded after the robot) | 37 KB |
 | Crab rave, on first use (dance, crowd robot, scuttle cycle) | ~73 KB |
 

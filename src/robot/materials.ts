@@ -4,6 +4,9 @@
 import * as THREE from 'three';
 
 export type Finish = 'red' | 'grey' | 'silicone' | 'black';
+/** A part's finish: its link's, except the servos, which get their own (our colour: upstream paints each link
+ *  in one colour, servo included, and hides the servos inside the shells). */
+export type PartFinish = Finish | 'servo';
 
 export function finishOf(rgba: [number, number, number, number]): Finish {
   const [r, g, b] = rgba;
@@ -37,7 +40,10 @@ export class RobotMaterials {
   // Pure black reads as a hole; a near-black satin keeps the chassis' shape visible.
   readonly black = new THREE.MeshPhysicalMaterial({ color: srgb(0.035, 0.036, 0.04), roughness: 0.48, metalness: 0.1, clearcoat: 0.35, clearcoatRoughness: 0.4 });
 
-  get(f: Finish): THREE.Material {
+  // The servo bodies only show when the robot is taken apart (Build); a dark satin keeps them apart from the shells.
+  readonly servo = new THREE.MeshPhysicalMaterial({ color: srgb(0.2, 0.21, 0.23), roughness: 0.38, metalness: 0.35 });
+
+  get(f: PartFinish): THREE.Material {
     return this[f];
   }
   setShell(c: ShellColour): void {
@@ -45,6 +51,6 @@ export class RobotMaterials {
     this.red.color.copy(srgb(r, g, b));
   }
   all(): THREE.Material[] {
-    return [this.red, this.grey, this.silicone, this.black];
+    return [this.red, this.grey, this.silicone, this.black, this.servo];
   }
 }

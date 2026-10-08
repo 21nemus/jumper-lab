@@ -32,10 +32,36 @@ export interface MeshJson {
   body: string;
   file: string;
   trisSource: number;
+  /** Triangles this project added to the link (the right-middle calf's missing servo). */
+  trisAdded?: number;
   tris: number;
   centroid: Vec3;
   min: Vec3;
   max: Vec3;
+}
+
+export type PartKind = 'servo' | 'shell' | 'bracket' | 'pad' | 'module' | 'chassis' | 'electronics' | 'mount';
+
+/** One real part inside a link mesh (tools/parts.mjs). Names are ours: upstream names only the links. */
+export interface PartJson {
+  body: string;
+  name: string;
+  kind: PartKind;
+  /** How the name is known: a servo body on its joint's axis, the upstream link name, the part's shape, or
+   *  added by this project. */
+  basis: 'servo' | 'link' | 'shape' | 'added';
+  /** For a servo: the joint it turns. */
+  joint?: string;
+  note?: string;
+  /** Its triangles in the shipped link mesh: [start, start + count). */
+  start: number;
+  count: number;
+  /** Where it is in the upstream STL: piece `piece` of `of` (largest first), with `slivers` leftovers merged
+   *  in; or the link it was copied from. */
+  source: { piece: number; of: number; tris: number; slivers?: number; copiedFrom?: string };
+  /** Source bounds in the link frame. */
+  sizeMm: Vec3;
+  center: Vec3;
 }
 
 export interface RobotJson {
@@ -64,6 +90,13 @@ export interface RobotJson {
     fingerPosedDeg: number;
   };
   meshes: MeshJson[];
+  parts: PartJson[];
+  partsSource: {
+    method: string;
+    names: string;
+    upstream: { pieces: number; slivers: number; parts: number; servos: number };
+    added: { body: string; from: string; why: string }[];
+  };
   massTotal: number;
   citations: Record<string, string>;
 }

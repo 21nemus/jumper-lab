@@ -17,7 +17,17 @@ export class Eyes {
   private look: [number, number] = [0, 0];
   private lastDraw = -1;
   private blinkAt = 2.5;
-  on = true;
+  private shown = true;
+  /** Whether the displays show anything. Changing it redraws at once, even while the simulation clock is
+   *  frozen (Build). */
+  get on(): boolean {
+    return this.shown;
+  }
+  set on(v: boolean) {
+    if (v === this.shown) return;
+    this.shown = v;
+    this.lastDraw = -1;
+  }
 
   constructor(rig: RobotRig) {
     const link = rig.links[rig.model.body('display_module_link')];

@@ -1,6 +1,6 @@
 // The guided showcase (~60 s, deterministic, framed for a 16:9 screen recording). It drives the real app
-// through the controls a visitor has: KingKong's recorded wave, the Build panel's own buttons and its claw
-// slider, the mission through the autopilot's stick and claw inputs, a real freeze whose panel chips are
+// through the controls a visitor has: KingKong's recorded wave, the Build panel's own buttons, its claw and
+// Explode sliders, the mission through the autopilot's stick and claw inputs, a real freeze whose panel chips are
 // pressed one by one, the depth view and the delivery. Captions and a few camera moves are layered on top;
 // nothing is a canned clip. While it plays only the captions and the live Build and Inspect panels show, the
 // pointer hides when idle, and sped-up stretches say so.
@@ -28,6 +28,9 @@ export interface Tour {
   stop(): void;
   running(): boolean;
 }
+
+const BUILD_SPEED = 2.5; // the Build shot's parts fly in at this speed (labelled on screen)
+const EXPLODE_TIME = 3.0; // s for the Build shot's explode, hold and reassemble
 
 const ease = (u: number) => {
   const c = Math.max(0, Math.min(1, u));
@@ -109,8 +112,9 @@ export function mountTour(ctx: AppContext): Tour {
   const linkAt = (name: string): Vec3 => fromThree(rig.links[model.body(name)].getWorldPosition(v));
 
   function build(): Shot[] {
-    // Build: press the panel's own buttons; stop on the claw arm to sweep its slider.
-    let wait = 0, sweep = -1, tried = false, doneAt = -1, near = 0;
+    // Build: press the panel's own buttons (parts fly in at BUILD_SPEED); stop on the claw arm to sweep its
+    // slider; once standing, slide Explode out and back.
+    let wait = 0, sweep = -1, tried = false, doneAt = -1, near = 0, exploding = -1, aim = 0;
     let claw: Vec3 = [0, 0, 0]; // the left claw as Build mode poses it (read after Build has posed the rig)
     // The finale: the crab rave once Jumper stands in the middle of the room.
     let raving = false, endAt = -1;
@@ -134,22 +138,26 @@ export function mountTour(ctx: AppContext): Tour {
       },
       {
         name: 'build',
-        caption: ['Build it', 'KingKong’s real parts, snapped on module by module'],
+        caption: ['Build it', '92 parts from KingKong’s published meshes, servo by servo'],
         start() {
-          ctx.timeScale = 1;
+          ctx.timeScale = BUILD_SPEED;
           ctx.setMode('build');
-          wait = 0.7;
+          wait = 0.45;
           sweep = -1;
           tried = false;
           doneAt = -1;
           near = 0;
+          exploding = -1;
+          aim = 0;
         },
         update(dt, tt) {
           claw = linkAt('LF_finger_link');
           const title = $('.b-title')?.textContent ?? '';
           const go = $<HTMLButtonElement>('.b-go');
           const tryBox = $('.b-try');
+          const busy = $('.build')?.dataset.busy === '1';
           near += ((sweep >= 0 ? 1 : 0) - near) * Math.min(1, dt * 3);
+          aim += ((/Claw arms/.test(title) ? 0.09 : 0) - aim) * Math.min(1, dt * 2);
           if (sweep >= 0) {
             // the claw's own "try it" slider: wide open, shut, then half open, with the measured-aperture readout
             sweep += dt;
@@ -162,35 +170,57 @@ export function mountTour(ctx: AppContext): Tour {
             if (sweep >= 2.6) {
               sweep = -1;
               wait = 0.25;
-              caption('Build it', 'KingKong’s real parts, snapped on module by module');
+              ctx.timeScale = BUILD_SPEED;
+              caption('Build it', '92 parts from KingKong’s published meshes, servo by servo');
             }
             return false;
           }
+          if (exploding >= 0) {
+            // Explode: out, hold, back together
+            exploding += dt;
+            const k = exploding / EXPLODE_TIME;
+            const val = k < 0.34 ? ease(k / 0.34) : k < 0.6 ? 1 : 1 - ease((k - 0.6) / 0.4);
+            const ex = $<HTMLInputElement>('.b-explode input');
+            ex.value = String(val);
+            ex.dispatchEvent(new Event('input', { bubbles: true }));
+            return exploding >= EXPLODE_TIME + 0.2;
+          }
           if (title === 'Assembled') {
             if (doneAt < 0) doneAt = tt;
-            return tt - doneAt > 0.6;
+            if (tt - doneAt > 0.25) {
+              exploding = 0;
+              ctx.timeScale = 1;
+              caption('Every part, apart', '22 servos, shells, brackets, pads and the chassis');
+            }
+            return false;
           }
           wait -= dt;
-          if (wait > 0 || !go) return false;
+          if (wait > 0 || !go || busy) return false;
           if (!tried && /Claw arms/.test(title) && !tryBox.hidden) {
             tried = true;
             sweep = 0;
+            ctx.timeScale = 1; // the slider moves at real speed
             caption('Try any joint', 'The claw opens 0.4 to 73.3 mm: KingKong’s measured range');
             return false;
           }
           const label = go.textContent ?? '';
-          if (/Standing up/.test(label)) return false;
+          if (/^Stand up/.test(label)) ctx.timeScale = 1.4; // the stand-up at nearly real speed
           go.click();
-          wait = /^Attach/.test(label) ? 0.8 : 0.2; // (the snap-on animation takes 0.75 s)
+          wait = 0.12;
           return false;
         },
         camera: (tt) => {
-          // a slow orbit around the build spot; in close on the left claw while its slider moves
+          // a slow orbit around the build spot, backing off while it is exploded; in close on the left claw
+          // while its slider moves
           const s = world.course.start;
-          const az = -0.8 + 0.32 * ease(tt / 12), el = 0.5, d = 1.12;
+          const ex = +($<HTMLInputElement>('.b-explode input')?.value ?? 0);
+          // exploded, it swings round to the robot's right (clear of the plant) and backs off a little
+          const az = -0.8 + 0.32 * ease(tt / 12) + (-1.05 - (-0.8 + 0.32 * ease(tt / 12))) * ease(ex * 1.4);
+          const el = 0.5, d = 1.2 * (1 + 0.22 * ex);
+          const at: Vec3 = [s.x + 0.01 + aim, s.y, 0.0 - 0.03 * ex];
           const wide: CamPose = {
-            eye: [s.x + Math.cos(az) * Math.cos(el) * d, s.y + Math.sin(az) * Math.cos(el) * d, 0.02 + Math.sin(el) * d],
-            at: [s.x + 0.01, s.y, 0.0],
+            eye: [at[0] + Math.cos(az) * Math.cos(el) * d, at[1] + Math.sin(az) * Math.cos(el) * d, at[2] + 0.02 + Math.sin(el) * d],
+            at,
             fov: 40,
           };
           if (near < 0.01) return wide;
@@ -210,7 +240,7 @@ export function mountTour(ctx: AppContext): Tour {
           world.reset();
           ctx.follow.snap(world.state.robot);
           ctx.pilot = pilotFrom(0, 4);
-          ctx.timeScale = 2.3;
+          ctx.timeScale = 2.6;
         },
         update: () => !!ctx.pilot?.done,
       },
@@ -232,15 +262,15 @@ export function mountTour(ctx: AppContext): Tour {
           ctx.timeScale = 1.5;
           frozeAt = -1;
           inspectCues = cues([
-            [2.4, () => {
+            [2.2, () => {
               press('.inspect [data-view="shell"]');
               caption('Take it apart', 'Shell off, exploded or isolated: the same frozen moment');
             }],
-            [4.4, () => {
+            [3.9, () => {
               press('.inspect [data-view="exploded"]');
               zoom(2.2); // back off a little so the spread-out parts fit
             }],
-            [6.9, () => {
+            [6.0, () => {
               press('.inspect [data-view="isolated"]');
               zoom(-1.6);
               caption('Five joints in one claw', 'Shoulder, roll, elbow, wrist and finger, each inside its real range');
@@ -257,7 +287,7 @@ export function mountTour(ctx: AppContext): Tour {
             return false;
           }
           inspectCues(tt - frozeAt);
-          return tt - frozeAt > 9.4;
+          return tt - frozeAt > 8.0;
         },
       },
       {
@@ -321,7 +351,7 @@ export function mountTour(ctx: AppContext): Tour {
             end.classList.add('on');
             caption('');
           }
-          return endAt >= 0 && tt - endAt > 3;
+          return endAt >= 0 && tt - endAt > 2.5;
         },
       },
     ];
@@ -353,7 +383,7 @@ export function mountTour(ctx: AppContext): Tour {
     camBlend = Math.min(1, camBlend + dt / 0.9);
     idle += dt;
     if (idle > 1.6) document.body.classList.add('tour-idle');
-    const x = ctx.mode === 'play' && ctx.timeScale > 1.2 ? `${(Math.round(ctx.timeScale * 10) / 10).toString()}× speed` : '';
+    const x = (ctx.mode === 'play' || ctx.mode === 'build') && ctx.timeScale > 1.2 ? `${(Math.round(ctx.timeScale * 10) / 10).toString()}× speed` : '';
     if (speed.textContent !== x) speed.textContent = x;
     const shot = shots[i];
     if (shot.update(dt, t)) next();

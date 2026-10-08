@@ -26,7 +26,7 @@ character skins (third-party characters) are deliberately not used.
 | Upstream file | Used for |
 |---|---|
 | `assets/jumper/jumper.xml` | The kinematic tree (41 links, 22 hinges, a free base), joint axes and limits, link masses and centres, colours, foot sites, the depth sensor and camera. No body or geom carries a rotation, which is asserted by the build. |
-| `assets/jumper/urdf/jumper/meshes/visual/*.stl` | The visual geometry, 41 files, 430,915 triangles. |
+| `assets/jumper/urdf/jumper/meshes/visual/*.stl` | The visual geometry, 41 files, 430,915 triangles, and the 91 parts inside them (see below). |
 | `tasks/jumper/common/constants.py` | `HOME` (the calibrated standing pose, 22 angles) and `STAND_Z` (0.10647 m), the leg order, the six feet, the measured stance footprint `NOMINAL_FOOT_XY`, the tripod grouping. |
 | `out/bundle_example/jumper/locomotion.json` | A second statement of `HOME`, `STAND_Z`, the joint limits and the wire order, used to cross-check. |
 | `tasks/jumper/five_foot/claw.py` | The claw's measured aperture table, `GRIPPER_OPEN`, `GRIPPER_CLOSED`, and the stow pose a five-foot carry uses. |
@@ -76,6 +76,42 @@ The inspector and the sources drawer tag every displayed number with its kind.
 - **Joint limits:** all 22 agree between `jumper.xml` and the policy contracts, and `HOME` is inside every limit.
 - **Grasp pose:** in the "web up" preset, the claw's jaws close horizontally. It is used for grasping because of that.
 
+## The parts inside the link meshes
+
+KingKong publishes one visual STL per moving link, and a link file welds several real pieces together: the shell
+halves, the servo that turns the link, pads and inserts. Build shows those pieces one by one.
+
+- **No other CAD is published.** On 2026-10-08 both KingKong repositories (`jumper` at the pinned commit, which is
+  still its latest, and `jumper-design`) were listed file by file. Neither holds STEP, print-ready STL or any other
+  CAD. The other STLs in `jumper` are the coarse collision hulls, nine claw collision pieces for the five-foot task,
+  and meshes of other robots in the training library. So the 41 visual STLs are the source of every part.
+- **How they are split** (`tools/parts.mjs`, run by `tools/build-robot.mjs`):
+  - Each STL is welded at 1 µm and split into its connected pieces: triangles that share vertices. The 41 files hold
+    123 pieces.
+  - 32 of them have no volume (under 0.01 cm³) or are under 2 mm across: surface leftovers of the export, such as
+    flat slivers on the calves and specks around the rear board. Each joins the nearest real piece.
+  - That leaves 91 parts. In `jumper.glb` every link's triangles are grouped by part, and `robot.json` (`parts`)
+    gives each part its triangle range, its source piece and its bounds.
+  - Each link must split exactly as the name table expects (piece count and triangle counts), or the build stops.
+- **Names are ours.** Upstream names only the 41 links. Each part's `basis` says how its name is known:
+  - `servo`: one of 21 identical bodies (972 triangles, 10.57 cm³, 36.8 mm long). The build checks that each one is
+    centred on its link's hinge axis (within 0.5 mm, and 2.2 mm from the joint along it), with its length along the axis. So
+    each servo is named after the joint it turns.
+  - `link`: a link that is a single piece, named after the link (for example `finger_tip_link` is the Fingertip).
+  - `shape`: named from its shape and place, such as "Hip shell" or "Thigh bracket, lower half". Parts whose purpose
+    is a guess say so in their note: the long box under the shell, the rear board (1.6 mm thick, the usual thickness
+    of a circuit board), the connectors, the push button, the pin and the servo mount ring.
+- **One bracket, six places.** The two bracket halves of all four thighs and both forearms match in triangle count,
+  size and volume (checked by the build): it is one part design used six times.
+- **The missing servo.** See discrepancy 6 below. It is the only part not taken from its own link's STL, and it is
+  marked as added (`basis: "added"`) in the data and in Build.
+- **Sizes** shown in Build are the parts' bounds in the published mesh: MODEL VALUE, not a manufacturing drawing.
+- **Credit.** yishan (@tspy) was the first to take these meshes apart publicly, in the
+  [Jumper Assembly Lab](https://jumper-assembly-lab.yishan-lin.chatgpt.site), with 88 viewable groups
+  ([post](https://x.com/tspy/status/2108121463345848759), 2026-10-08). [@GoMorko](https://x.com/GoMorko) pointed out
+  that the STLs hold more parts than Build showed. This project's split and names are its own work from KingKong's
+  files.
+
 ## Discrepancies found upstream (and what this project does)
 
 1. **The URDFs carry three joint-limit errors.**
@@ -89,6 +125,11 @@ The inspector and the sources drawer tag every displayed number with its kind.
    - The servo's vendor and datasheet are `null` upstream, so no torque rating is shown as a specification.
 4. **The camera figures conflict.** `HARDWARE.md` gives a 162.2° diagonal; the simulation config uses 123° (from a drawing). This project does not quote camera figures.
 5. **The product page makes claims not found in `HARDWARE.md`:** top speed ≥ 0.5 m/s, jump ≥ 400 mm, about 2 h of battery. They are quoted as claims only, and nothing in the game uses them.
+6. **The right middle calf has no servo.** `RM_calf_link.stl` has 13,386 triangles; the other three calves have 14,358, the difference being exactly one servo body.
+   - Apart from that servo, the right middle calf is the right rear calf's mesh vertex for vertex (to 1 µm: 17 of its 40,158 triangle corners differ in the last float bit).
+   - This project copies the right rear calf's servo into it unchanged, so all 22 joints have their servo.
+   - The copy is marked as added in `robot.json` and in Build. It sits inside the calf shell, so it is not visible in play.
+   - The build stops if upstream adds the servo back, or if the two calves stop matching.
 
 ## What this is not
 

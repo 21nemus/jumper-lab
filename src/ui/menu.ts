@@ -23,9 +23,11 @@ function shareUrl(s: Settings): string {
 
 const CREDITS: [string, string, string][] = [
   ['Jumper robot model, poses, gestures', 'KingKong Robotics · Apache-2.0', 'https://github.com/KingKongRobotics/jumper'],
+  ['First to take Jumper’s meshes apart, part by part', 'yishan (@tspy) · Jumper Assembly Lab', 'https://jumper-assembly-lab.yishan-lin.chatgpt.site'],
+  ['Pointed out the extra parts in the STLs', '@GoMorko', 'https://x.com/GoMorko'],
   ['three.js', 'three.js authors · MIT', 'https://threejs.org/'],
   ['Manrope typeface', 'The Manrope Project Authors · SIL OFL 1.1', 'https://github.com/sharanda/manrope'],
-  ['JUMPER LAB code, room, props', '@21nemus · MIT', 'https://x.com/21nemus'],
+  ['JUMPER LAB code, room, props, the part split and names', '@21nemus · MIT', 'https://x.com/21nemus'],
   ['Music and the crab-rave choreography', '@21nemus · MIT, original', 'https://x.com/21nemus'],
 ];
 
@@ -37,6 +39,7 @@ const SPEC_FACTS: [Label, string, string][] = [
   ['MODEL VALUE', 'Model mass 2.543 kg · standing height 106.47 mm · six feet level to about 0.001 mm', SRC.constants.url],
   ['MODEL VALUE', 'Joint axes and limits for all 22 joints, as in jumper.xml (three URDF limit errors repaired there)', SRC.xml.url],
   ['MODEL VALUE', 'Claw opening 0.4–73.3 mm (finger +0.10 to −0.65 rad), measured upstream', SRC.claw.url],
+  ['MODEL VALUE', '92 parts inside the 41 link meshes: 22 servos, shells, brackets, pads and the chassis (one servo copied in where the published mesh lacks it)', SRC.meshes.url],
   ['TRAINING PARAMETER', 'Walking policies drive 20 of 22 joints; their command ranges are training settings, not speeds', SRC.deploy.url],
   ['GAME APPROXIMATION', 'Walking, speed, step timing, the claw’s reach planning, the snack, the drop and the score are this game’s', ''],
 ];

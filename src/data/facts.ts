@@ -20,6 +20,7 @@ export const SRC = {
   fiveFoot: { label: 'five_foot/README.md', url: `${REPO}tasks/jumper/five_foot/README.md` },
   deploy: { label: 'deploy/README.md', url: `${REPO}deploy/README.md` },
   hardware: { label: 'HARDWARE.md', url: `${REPO}docs/HARDWARE.md` },
+  meshes: { label: 'meshes/visual (41 STLs)', url: 'https://github.com/KingKongRobotics/jumper/tree/61d065219fca767f3142c8f10aff59eae5a5a004/assets/jumper/urdf/jumper/meshes/visual' },
   motor: { label: 'motor_config.yaml', url: `${REPO}assets/jumper/motor/motor_config.yaml` },
   product: { label: 'kingkong.tech/en/jumper', url: 'https://kingkong.tech/en/jumper' },
 } satisfies Record<string, Source>;
