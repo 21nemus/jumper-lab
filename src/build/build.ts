@@ -297,7 +297,7 @@ export function mountBuild(ctx: AppContext, eyes: Eyes): void {
     hud.root.classList.remove('building');
     if (snapshot) world.restore(snapshot);
     snapshot = null;
-    ctx.frozen = false;
+    if (ctx.mode !== 'inspect') ctx.frozen = false; // straight on to Inspect: it has just frozen the game itself
     blendFrom = pose();
     leaving = 1;
   }
