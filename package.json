@@ -18,8 +18,7 @@
     "upstream:fetch": "node tools/upstream.mjs fetch",
     "assets": "node tools/build-robot.mjs && node --experimental-strip-types --no-warnings=ExperimentalWarning tools/build-motions.mjs && npm run dance && npm run crowd",
     "dance": "node --experimental-strip-types --no-warnings=ExperimentalWarning tools/build-dance.mjs",
-    "crowd": "node --experimental-strip-types --no-warnings=ExperimentalWarning tools/build-crowd.mjs",
-    "check:assets": "node tools/check-assets.mjs"
+    "crowd": "node --experimental-strip-types --no-warnings=ExperimentalWarning tools/build-crowd.mjs"
   },
   "dependencies": {
     "@fontsource/manrope": "5.3.0",
