@@ -3,7 +3,7 @@
 
 import type { Command } from '../sim/robot.ts';
 
-export type Action = 'claw' | 'freeze' | 'reset' | 'pause' | 'build' | 'play' | 'sources' | 'wave' | 'depth' | 'tour';
+export type Action = 'claw' | 'freeze' | 'reset' | 'pause' | 'build' | 'play' | 'sources' | 'wave' | 'depth' | 'tour' | 'rave' | 'mute';
 
 const MOVE: Record<string, [keyof Command, number]> = {
   KeyW: ['fwd', 1], ArrowUp: ['fwd', 1],
@@ -13,7 +13,7 @@ const MOVE: Record<string, [keyof Command, number]> = {
   KeyE: ['turn', -1], ArrowRight: ['turn', -1], KeyL: ['turn', -1],
 };
 const ACTIONS: Record<string, Action> = {
-  Space: 'claw', Enter: 'claw', KeyF: 'freeze', KeyI: 'freeze', KeyR: 'reset', Escape: 'pause', KeyB: 'build', KeyP: 'play', KeyH: 'wave', KeyV: 'depth', KeyT: 'tour',
+  Space: 'claw', Enter: 'claw', KeyF: 'freeze', KeyI: 'freeze', KeyR: 'reset', Escape: 'pause', KeyB: 'build', KeyP: 'play', KeyH: 'wave', KeyV: 'depth', KeyT: 'tour', KeyC: 'rave', KeyM: 'mute',
 };
 
 function typing(e: Event): boolean {

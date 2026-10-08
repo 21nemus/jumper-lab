@@ -1,5 +1,6 @@
 // Playback of KingKong's recorded gestures (RECORDED PLAYBACK in the UI): joint angles exactly as recorded,
-// body pose solved from the feet by tools/build-motions.mjs. Interpolated between the 50 Hz frames.
+// body pose solved from the feet by tools/build-motions.mjs. Interpolated between the 50 Hz frames. The crab
+// rave plays through here too, but it is our generated choreography (src/sim/dance.ts), and says so.
 
 import { mul3, quatToMat3, rotZ, type Mat3, type Quat } from './math.ts';
 
@@ -14,7 +15,8 @@ export interface ClipData {
   scale: number;
   q: number[][];
   base: number[][]; // x, y, z, qw, qx, qy, qz relative to the first frame
-  source: { repo: string; commit: string; trajectory: { path: string; sha256: string }; note: string };
+  /** A KingKong recording (repo, commit, file), or our own generated choreography (generator). */
+  source: { repo: string; commit: string; trajectory: { path: string; sha256: string }; note: string } | { generator: string; bpm: number; note: string };
 }
 
 export interface ClipState {

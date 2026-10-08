@@ -8,6 +8,7 @@
 import * as THREE from 'three';
 import type { AppContext } from '../app/app.ts';
 import { Autopilot, TOUR_RUN } from '../sim/autopilot.ts';
+import { RAVE_BEATS } from '../sim/dance.ts';
 import { blendPose, type CamPose } from '../scene/camera.ts';
 import { fromThree } from '../scene/stage.ts';
 import type { Vec3 } from '../sim/math.ts';
@@ -111,6 +112,8 @@ export function mountTour(ctx: AppContext): Tour {
     // Build: press the panel's own buttons; stop on the claw arm to sweep its slider.
     let wait = 0, sweep = -1, tried = false, doneAt = -1, near = 0;
     let claw: Vec3 = [0, 0, 0]; // the left claw as Build mode poses it (read after Build has posed the rig)
+    // The finale: the crab rave once Jumper stands in the middle of the room.
+    let raving = false, endAt = -1;
     // Freeze: the inspect panel's chips, pressed on a timeline once frozen.
     let frozeAt = -1;
     let inspectCues: (t: number) => void = () => {};
@@ -126,7 +129,7 @@ export function mountTour(ctx: AppContext): Tour {
           ctx.timeScale = 1;
           world.play('hello', 1);
         },
-        update: (_dt, tt) => tt > 6.2 || (!world.state.clip && tt > 0.5),
+        update: (_dt, tt) => tt > 5.4 || (!world.state.clip && tt > 0.5),
         camera: () => faceCam(),
       },
       {
@@ -152,11 +155,11 @@ export function mountTour(ctx: AppContext): Tour {
             sweep += dt;
             const slider = tryBox.querySelector('input') as HTMLInputElement;
             const open = +slider.min, shut = +slider.max;
-            const k = sweep / 3.2;
+            const k = sweep / 2.6;
             const val = k < 0.42 ? shut + (open - shut) * ease(k / 0.42) : k < 0.78 ? open + (shut - open) * ease((k - 0.42) / 0.36) : shut + (open - shut) * 0.55 * ease((k - 0.78) / 0.22);
             slider.value = String(val);
             slider.dispatchEvent(new Event('input', { bubbles: true }));
-            if (sweep >= 3.2) {
+            if (sweep >= 2.6) {
               sweep = -1;
               wait = 0.25;
               caption('Build it', 'KingKong’s real parts, snapped on module by module');
@@ -165,7 +168,7 @@ export function mountTour(ctx: AppContext): Tour {
           }
           if (title === 'Assembled') {
             if (doneAt < 0) doneAt = tt;
-            return tt - doneAt > 1.0;
+            return tt - doneAt > 0.6;
           }
           wait -= dt;
           if (wait > 0 || !go) return false;
@@ -178,7 +181,7 @@ export function mountTour(ctx: AppContext): Tour {
           const label = go.textContent ?? '';
           if (/Standing up/.test(label)) return false;
           go.click();
-          wait = /^Attach/.test(label) ? 0.8 : 0.22;
+          wait = /^Attach/.test(label) ? 0.8 : 0.2; // (the snap-on animation takes 0.75 s)
           return false;
         },
         camera: (tt) => {
@@ -202,6 +205,7 @@ export function mountTour(ctx: AppContext): Tour {
         name: 'walk',
         caption: ['Walk it like a crab', 'The real joints and limits; the gait itself is this game’s, not physics'],
         start() {
+          ctx.music.play([[0, 'groove']]);
           ctx.setMode('play');
           world.reset();
           ctx.follow.snap(world.state.robot);
@@ -228,15 +232,15 @@ export function mountTour(ctx: AppContext): Tour {
           ctx.timeScale = 1.5;
           frozeAt = -1;
           inspectCues = cues([
-            [2.7, () => {
+            [2.4, () => {
               press('.inspect [data-view="shell"]');
               caption('Take it apart', 'Shell off, exploded or isolated: the same frozen moment');
             }],
-            [4.9, () => {
+            [4.4, () => {
               press('.inspect [data-view="exploded"]');
               zoom(2.2); // back off a little so the spread-out parts fit
             }],
-            [7.6, () => {
+            [6.9, () => {
               press('.inspect [data-view="isolated"]');
               zoom(-1.6);
               caption('Five joints in one claw', 'Shoulder, roll, elbow, wrist and finger, each inside its real range');
@@ -253,7 +257,7 @@ export function mountTour(ctx: AppContext): Tour {
             return false;
           }
           inspectCues(tt - frozeAt);
-          return tt - frozeAt > 10.6;
+          return tt - frozeAt > 9.4;
         },
       },
       {
@@ -292,27 +296,32 @@ export function mountTour(ctx: AppContext): Tour {
         },
       },
       {
-        name: 'celebrate',
-        caption: ['', ''],
+        // the finale: to the middle of the room, then the crab rave; the end card comes in over the dancing
+        name: 'rave',
+        caption: ['Then everybody dances', 'Our own music and choreography: claws up, balanced on four feet'],
         start() {
-          ctx.pilot = null;
-          ctx.timeScale = 1;
           hud.overlay.innerHTML = '';
+          ctx.pilot = new Autopilot([{ kind: 'go', x: 0.08, y: 0.02, yaw: 0, tol: 0.05 }, { kind: 'turn', yaw: 0 }, { kind: 'until', what: 'stopped' }]);
+          ctx.timeScale = 2.5;
+          raving = false;
+          endAt = -1;
         },
-        update: (_dt, tt) => {
-          // the salute first, then the end card
-          if (tt > 2.6) end.classList.add('on');
-          return tt > 6.4;
-        },
-        camera: () => {
-          // from the robot's front-left (open floor): the face, the happy eyes and the snack in the dish
-          const r = world.state.robot;
-          const f = [Math.cos(r.yaw), Math.sin(r.yaw)], l = [-Math.sin(r.yaw), Math.cos(r.yaw)];
-          return {
-            eye: [r.x + f[0] * 0.52 + l[0] * 0.36, r.y + f[1] * 0.52 + l[1] * 0.36, 0.24],
-            at: [r.x + f[0] * 0.16 + l[0] * 0.03, r.y + f[1] * 0.16 + l[1] * 0.03, 0.075],
-            fov: 40,
-          };
+        update(_dt, tt) {
+          if (!raving) {
+            if (ctx.pilot?.done || tt > 7) {
+              ctx.pilot = null;
+              ctx.timeScale = 1;
+              raving = ctx.rave.start();
+              if (!raving) return true; // (can't happen on the tour's route; end rather than hang)
+            }
+            return false;
+          }
+          if (endAt < 0 && (ctx.rave.beat() ?? 0) >= RAVE_BEATS.setup + 5) {
+            endAt = tt;
+            end.classList.add('on');
+            caption('');
+          }
+          return endAt >= 0 && tt - endAt > 3;
         },
       },
     ];
@@ -365,6 +374,8 @@ export function mountTour(ctx: AppContext): Tour {
   function start(capture = false): void {
     if (active) return;
     active = true;
+    ctx.rave.stop(true);
+    ctx.music.play([[0, 'intro']]); // from the click or key press that started the tour, so it may sound
     idle = 0;
     document.body.classList.add('touring');
     document.body.classList.toggle('capture', capture);
@@ -396,6 +407,8 @@ export function mountTour(ctx: AppContext): Tour {
     ctx.controls.enabled = true;
     ctx.follow.enabled = true;
     ctx.depth.enabled = false;
+    ctx.rave.stop(true);
+    ctx.music.stop(1.6);
     if (ctx.mode !== 'play') ctx.setMode('play');
     world.reset();
     ctx.follow.snap(world.state.robot);

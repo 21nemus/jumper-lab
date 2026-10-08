@@ -26,6 +26,7 @@ const CREDITS: [string, string, string][] = [
   ['three.js', 'three.js authors · MIT', 'https://threejs.org/'],
   ['Manrope typeface', 'The Manrope Project Authors · SIL OFL 1.1', 'https://github.com/sharanda/manrope'],
   ['JUMPER LAB code, room, props', '@21nemus · MIT', 'https://x.com/21nemus'],
+  ['Music and the crab-rave choreography', '@21nemus · MIT, original', 'https://x.com/21nemus'],
 ];
 
 const SPEC_FACTS: [Label, string, string][] = [
@@ -60,6 +61,15 @@ export function mountMenu(ctx: AppContext, settings: Settings, apply: (s: Settin
       <section><h3>Gestures <span class="tag model">recorded by KingKong</span></h3>
         <div class="mn-row mn-gestures"></div>
         <p class="mn-small">Played joint for joint from KingKong’s recordings when Jumper stands still with empty claws.</p>
+        <div class="mn-row mn-rave-row"><button type="button" class="pill primary mn-rave">Crab rave <kbd>C</kbd></button><span class="tag game">our choreography</span></div>
+        <p class="mn-small">Not a KingKong recording: generated from the model on the beat of our own music. Jumper steps its middle legs forward so its centre of mass stays over its four feet with both claws up, then the crowd comes in.</p>
+      </section>
+      <section><h3>Sound</h3>
+        <div class="mn-row mn-sound">
+          <div class="seg" role="group" aria-label="Music"><button type="button" data-music="1">Music on</button><button type="button" data-music="0">Off</button></div>
+          <label class="mn-vol"><span>Volume</span><input type="range" min="0" max="100" step="5" aria-label="Music volume" /><output></output></label>
+        </div>
+        <p class="mn-small">Original music, synthesized live in your browser (no recordings). It only plays during the guided tour and the crab rave, starts quietly and fades in. The ♪ button at the top mutes it.</p>
       </section>
       <section><h3>Shell colour <span class="tag game">cosmetic only</span></h3><div class="mn-row mn-shells"></div></section>
       <section><h3>Show me</h3>
@@ -69,12 +79,30 @@ export function mountMenu(ctx: AppContext, settings: Settings, apply: (s: Settin
         <ul class="mn-facts"></ul>
         <p class="mn-small">Robot data from <a href="https://github.com/KingKongRobotics/jumper/tree/61d065219fca767f3142c8f10aff59eae5a5a004" target="_blank" rel="noopener">KingKongRobotics/jumper @ 61d0652</a>, retrieved 2026-10-07. This is an independent project, not an official KingKong product, not a validated digital twin and not a robot controller.</p>
         <ul class="mn-credits"></ul>
+        <p class="mn-small mn-repo">Open source: <a href="https://github.com/21nemus/jumper-lab" target="_blank" rel="noopener">github.com/21nemus/jumper-lab</a></p>
         <p class="mn-small">Made by <a href="https://x.com/21nemus" target="_blank" rel="noopener">@21nemus</a> · also <a href="https://21nemus.github.io/vibe-a1-explainer/" target="_blank" rel="noopener">Inside the Vibe A1</a></p>
       </section>
     </div>`;
   hud.root.parentElement!.append(dlg);
   const $ = <T extends HTMLElement>(s: string) => dlg.querySelector(s) as T;
 
+  $('.mn-rave').addEventListener('click', () => {
+    close();
+    if (ctx.mode !== 'play') ctx.setMode('play');
+    ctx.controls.fire('rave');
+  });
+  for (const b of dlg.querySelectorAll<HTMLButtonElement>('[data-music]')) {
+    b.addEventListener('click', () => {
+      if ((b.dataset.music === '0') !== ctx.music.muted) ctx.controls.fire('mute');
+      sync();
+    });
+  }
+  const vol = dlg.querySelector('.mn-vol input') as HTMLInputElement;
+  vol.addEventListener('input', () => {
+    ctx.music.setVolume(+vol.value / 100);
+    store.set('music-volume', ctx.music.volume);
+    sync();
+  });
   for (const [name, title] of [['hello', 'Hello'], ['bow', 'Bow'], ['salute', 'Salute'], ['paw', 'Offer a paw']]) {
     const b = document.createElement('button');
     b.type = 'button';
@@ -180,6 +208,9 @@ export function mountMenu(ctx: AppContext, settings: Settings, apply: (s: Settin
     lastFocus?.focus?.();
   }
   function sync(): void {
+    for (const b of dlg.querySelectorAll<HTMLButtonElement>('[data-music]')) b.setAttribute('aria-pressed', String((b.dataset.music === '0') === ctx.music.muted));
+    vol.value = String(Math.round(ctx.music.volume * 100));
+    (dlg.querySelector('.mn-vol output') as HTMLElement).textContent = `${vol.value} %`;
     for (const b of dlg.querySelectorAll<HTMLButtonElement>('[data-trial]')) b.setAttribute('aria-pressed', String((b.dataset.trial === '1') === settings.trial));
     for (const b of dlg.querySelectorAll<HTMLButtonElement>('.swatch')) b.setAttribute('aria-pressed', String(b.dataset.shell === settings.shell));
     const best = store.get<number>('best:corner:v1');

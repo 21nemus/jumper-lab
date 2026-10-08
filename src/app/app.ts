@@ -22,6 +22,8 @@ import { DepthInset } from '../scene/depth.ts';
 import { mountBuild } from '../build/build.ts';
 import { mountMenu, readSettings, type Settings } from '../ui/menu.ts';
 import { mountTour, type Tour } from '../tour/tour.ts';
+import { Music } from '../audio/music.ts';
+import { mountRave, type Rave } from './rave.ts';
 
 const params = new URLSearchParams(location.search);
 import type { ClipData } from '../sim/clip.ts';
@@ -55,6 +57,9 @@ export interface AppContext {
   timeScale: number;
   /** Resolves once the recorded gestures are loaded (or failed to load). */
   clipsReady: Promise<void>;
+  /** The original soundtrack (Watch and the crab rave), and the crab rave itself. */
+  music: Music;
+  rave: Rave;
 }
 
 export async function startApp(app: HTMLElement): Promise<AppContext | null> {
@@ -148,7 +153,11 @@ export async function startApp(app: HTMLElement): Promise<AppContext | null> {
     pilot: null,
     timeScale: 1,
     clipsReady: Promise.resolve(),
+    music: new Music(),
+    rave: null as unknown as Rave, // mounted below, once the other camera hooks are in
   };
+  ctx.music.muted = store.get<boolean>('music-muted') ?? false;
+  ctx.music.volume = store.get<number>('music-volume') ?? ctx.music.volume;
 
   // ── modes ────────────────────────────────────────────────────────────────────────────────────────────
   function setMode(m: Mode): void {
@@ -167,6 +176,10 @@ export async function startApp(app: HTMLElement): Promise<AppContext | null> {
   const act = (a: Action) => {
     if (a === 'tour') {
       if (tour) tour.running() ? tour.stop() : tour.start();
+    } else if (a === 'rave') {
+      if (!tour?.running()) ctx.rave.active() ? ctx.rave.stop() : ctx.rave.start();
+    } else if (a === 'mute') {
+      setMuted(!ctx.music.muted);
     } else if (a === 'depth') {
       depth.enabled = !depth.enabled;
       showToast(hud, depth.enabled ? 'Synthetic depth view on: rendered scene depth at the dToF’s pose, not sensor data.' : 'Depth view off.', 2600);
@@ -184,12 +197,24 @@ export async function startApp(app: HTMLElement): Promise<AppContext | null> {
   hud.freeze.addEventListener('click', () => act('freeze'));
   hud.reset.addEventListener('click', () => act('reset'));
   hud.watch.addEventListener('click', () => act('tour'));
+  hud.sound.addEventListener('click', () => act('mute'));
+  function setMuted(m: boolean): void {
+    ctx.music.setMuted(m);
+    store.set('music-muted', m);
+    hud.sound.setAttribute('aria-pressed', String(!m));
+    hud.sound.classList.toggle('off', m);
+    showToast(hud, m ? 'Music off.' : 'Music on: original, made live in your browser.', 1800);
+  }
+  hud.sound.setAttribute('aria-pressed', String(!ctx.music.muted));
+  hud.sound.classList.toggle('off', ctx.music.muted);
   hud.approx.addEventListener('click', () =>
     showToast(
       hud,
-      world.state.clip
-        ? 'This gesture is KingKong’s own recording, played back joint for joint. The body position is solved from the feet.'
-        : 'The walk is a kinematic game controller on the real joints and limits, not a physics simulation or a trained policy.',
+      world.state.clip?.name === 'rave'
+        ? 'The crab rave is our choreography, not a KingKong recording: generated from the model on the beat, inside every joint limit, with the middle feet stepped forward so the centre of mass stays over the four feet while both claws are up.'
+        : world.state.clip
+          ? 'This gesture is KingKong’s own recording, played back joint for joint. The body position is solved from the feet.'
+          : 'The walk is a kinematic game controller on the real joints and limits, not a physics simulation or a trained policy.',
       5200,
     ),
   );
@@ -231,10 +256,11 @@ export async function startApp(app: HTMLElement): Promise<AppContext | null> {
       const c = card(
         isBest ? 'Snack secured · new best' : 'Snack secured',
         'The oat cube is in the dish. No neural network was involved: you drove the real joint tree, and the claw reached with the roll of Jumper’s documented arm-out pose and carried in its documented stow.',
-        trial ? [['Play again', 'again'], ['Freeze & look at the claw', 'inspect']] : [['Play again', 'again'], ['Try a time trial', 'trial'], ['Freeze & look at the claw', 'inspect']],
+        trial ? [['Play again', 'again'], ['Celebrate: crab rave', 'rave'], ['Freeze & look at the claw', 'inspect']] : [['Play again', 'again'], ['Celebrate: crab rave', 'rave'], ['Try a time trial', 'trial'], ['Freeze & look at the claw', 'inspect']],
         (v) => {
           hud.overlay.innerHTML = '';
-          if (v === 'again') resetMission();
+          if (v === 'rave') ctx.rave.start();
+          else if (v === 'again') resetMission();
           else if (v === 'trial') { settings.trial = true; applySettings(settings); resetMission(); }
           else if (v === 'inspect') setMode('inspect');
         },
@@ -295,7 +321,7 @@ export async function startApp(app: HTMLElement): Promise<AppContext | null> {
     const r = s.robot;
     const clip = s.clip?.name;
     eyes.set(
-      s.mission.status === 'delivered' && (clip === 'salute' || s.claw.phase !== 'foot') ? 'happy'
+      clip === 'rave' || (s.mission.status === 'delivered' && (clip === 'salute' || s.claw.phase !== 'foot')) ? 'happy'
         : r.wobble && r.wobble.t < 0.7 ? 'oops'
         : s.claw.phase === 'grabbing' || s.claw.phase === 'releasing' || s.claw.waiting ? 'focus'
         : clip === 'hello' ? 'wave'
@@ -309,19 +335,22 @@ export async function startApp(app: HTMLElement): Promise<AppContext | null> {
       eyes.gaze(Math.sin(a) * 1.6, 0.15);
     } else eyes.gaze(0, 0);
     eyes.update(s.t);
-    const text = clip ? `Recorded motion · KingKong “${world.clips.get(clip)?.title ?? clip}”` : 'Kinematic walk · game approximation';
+    const data = clip ? world.clips.get(clip) : null;
+    const text = !clip ? 'Kinematic walk · game approximation'
+      : data && 'generator' in data.source ? `${data.title} · our choreography, balanced on four feet`
+      : `Recorded motion · KingKong “${data?.title ?? clip}”`;
     if (text !== approxText) {
       approxText = text;
       hud.approx.textContent = text;
-      hud.approx.classList.toggle('recorded', !!clip);
+      hud.approx.classList.toggle('recorded', !!clip && !(data && 'generator' in data.source));
     }
   }
 
   // Recorded gestures load after the robot; the intro wave plays while Jumper waits for its first command.
-  ctx.clipsReady = Promise.all(['hello', 'bow', 'salute', 'paw'].map((n) => fetch(`./assets/motions/${n}.json`).then((r) => (r.ok ? (r.json() as Promise<ClipData>) : null)).catch(() => null))).then((list) => {
+  ctx.clipsReady = Promise.all(['hello', 'bow', 'salute', 'paw', 'rave'].map((n) => fetch(`./assets/motions/${n}.json`).then((r) => (r.ok ? (r.json() as Promise<ClipData>) : null)).catch(() => null))).then((list) => {
     for (const c of list) if (c) world.clips.set(c.name, c);
     window.setTimeout(() => {
-      if (ctx.mode === 'play' && world.state.mission.status === 'ready' && !ctx.pilot && !params.has('tour') && !params.has('capture')) world.play('hello');
+      if (ctx.mode === 'play' && world.state.mission.status === 'ready' && !ctx.pilot && !ctx.rave.active() && !params.has('tour') && !params.has('capture')) world.play('hello');
     }, 700);
   });
 
@@ -358,6 +387,7 @@ export async function startApp(app: HTMLElement): Promise<AppContext | null> {
 
   function present(dt: number, now: number): void {
     const s = world.state;
+    ctx.music.muffle(ctx.frozen || ctx.mode !== 'play'); // as if behind a door while frozen or building
     if (s.mission.status !== lastStatus) lastStatus = s.mission.status;
 
     // reach rings (a few times per second is plenty)
@@ -411,6 +441,7 @@ export async function startApp(app: HTMLElement): Promise<AppContext | null> {
 
   mountInspector(ctx);
   mountBuild(ctx, eyes);
+  ctx.rave = mountRave(ctx); // after inspect and build: their cameras come first
   const showcase = mountTour(ctx);
   tour = showcase;
   mountMenu(ctx, settings, applySettings, () => showcase.start(false));
@@ -421,6 +452,7 @@ export async function startApp(app: HTMLElement): Promise<AppContext | null> {
   requestAnimationFrame(frame);
   if (import.meta.env.DEV) {
     const { Autopilot, CORNER_RUN } = await import('../sim/autopilot.ts');
+    let devClock = 0;
     (window as unknown as { __jl: unknown }).__jl = {
       ctx,
       autopilot: () => (ctx.pilot = new Autopilot(CORNER_RUN)),
@@ -438,10 +470,12 @@ export async function startApp(app: HTMLElement): Promise<AppContext | null> {
       /** Run whole frames at a fixed rate (the same code path as requestAnimationFrame). */
       frames: (seconds: number, fps = 60, until?: () => boolean) => {
         const dt = 1 / fps;
-        let now = performance.now();
+        if (!devClock) devClock = performance.now(); // then purely virtual: only frames move it
+        ctx.music.now = () => devClock; // the music clock follows the stepped frames
+        ctx.music.silentOnly = true; // and makes no sound while a script steps it
         for (let i = 0; i < seconds * fps; i++) {
-          now += dt * 1000;
-          advanceFrame(dt, now);
+          devClock += dt * 1000;
+          advanceFrame(dt, devClock);
           if (until?.()) break;
         }
       },

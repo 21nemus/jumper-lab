@@ -18,6 +18,7 @@ export interface HudRefs {
   freeze: HTMLButtonElement;
   reset: HTMLButtonElement;
   watch: HTMLButtonElement;
+  sound: HTMLButtonElement;
   menu: HTMLButtonElement;
   toast: HTMLElement;
   approx: HTMLButtonElement;
@@ -61,8 +62,10 @@ export function mountHud(app: HTMLElement, controls: Controls): HudRefs {
   timer.setAttribute('aria-label', 'Mission time');
   const watch = btn('pill watch', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg><span>Watch</span>', 'Watch the guided tour (T)');
   watch.title = 'Watch the guided tour (T)';
+  const sound = btn('icon sound', '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="note" d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/><path class="slash" d="M4 4l16 16"/></svg>', 'Music on or off (M)');
+  sound.title = 'Music on or off (M)';
   const menu = btn('icon menu', '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>', 'Menu: modes, sources and settings');
-  right.append(timer, watch, menu);
+  right.append(timer, watch, sound, menu);
   top.append(brand, modes, right);
 
   const mission = h('section', 'mission');
@@ -106,7 +109,7 @@ export function mountHud(app: HTMLElement, controls: Controls): HudRefs {
 
   root.append(top, mission, toast, touch, actions, bottom);
   app.append(root, overlay);
-  return { root, modeButtons, timer, mission, missionGoal, stepSnack, stepDish, counters, claw, freeze, reset, watch, menu, toast, approx, touch, legend, overlay };
+  return { root, modeButtons, timer, mission, missionGoal, stepSnack, stepDish, counters, claw, freeze, reset, watch, sound, menu, toast, approx, touch, legend, overlay };
 }
 
 let toastTimer = 0;

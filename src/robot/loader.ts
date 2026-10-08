@@ -116,3 +116,33 @@ export async function loadRobot(base: string, onProgress: Progress = () => {}, s
   onProgress(1, 'Ready');
   return { model, geometries, stats: { glbBytes, jsonBytes, triangles, vertices, normalsMs, usedWorker } };
 }
+
+/** A lighter mesh set by body name (the rave crowd's jumper-crowd.glb): decoded the same way, normals built on
+ *  this thread (it is small). */
+export async function loadLinkGeometries(url: string): Promise<Map<string, THREE.BufferGeometry>> {
+  const loader = new GLTFLoader();
+  loader.setMeshoptDecoder(MeshoptDecoder);
+  const gltf = await loader.loadAsync(url);
+  gltf.scene.updateMatrixWorld(true);
+  const out = new Map<string, THREE.BufferGeometry>();
+  gltf.scene.traverse((o) => {
+    const mesh = o as THREE.Mesh;
+    if (!mesh.isMesh) return;
+    const pos = mesh.geometry.getAttribute('position') as THREE.BufferAttribute | THREE.InterleavedBufferAttribute;
+    const flat = new Float32Array(pos.count * 3);
+    for (let i = 0; i < pos.count; i++) {
+      flat[3 * i] = pos.getX(i);
+      flat[3 * i + 1] = pos.getY(i);
+      flat[3 * i + 2] = pos.getZ(i);
+    }
+    const index = mesh.geometry.getIndex()!;
+    const r = processJob({ name: mesh.name, position: flat, normalized: false, matrix: mesh.matrixWorld.toArray(), index: (index.array as Uint16Array | Uint32Array).slice() }, CREASE_ANGLE);
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.BufferAttribute(r.position, 3));
+    g.setAttribute('normal', new THREE.BufferAttribute(r.normal, 3));
+    g.setIndex(new THREE.BufferAttribute(r.index, 1));
+    out.set(r.name, g);
+    mesh.geometry.dispose();
+  });
+  return out;
+}

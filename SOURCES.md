@@ -61,6 +61,7 @@ not a pose. jumper-design's `preview-pose.json` says itself that it is not the c
   - The claw's reach planning: jaw heading, approach distances, the 55 mm opening, and the self-collision footprints (measured from the meshes, simplified to boxes).
   - Collision shapes and the score.
   - The guided tour's time-lapse speeds, labelled on screen.
+  - The crab rave: the choreography (generated from the model, inside its limits, balanced over the feet that are down), the crowd and its timing, the party lights, and the music, which is original and synthesized live (not a recording).
 
 The inspector and the sources drawer tag every displayed number with its kind.
 

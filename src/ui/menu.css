@@ -114,3 +114,48 @@
     border-radius: 18px 18px 0 0;
   }
 }
+.mn-rave-row {
+  align-items: center;
+}
+.mn-sound {
+  align-items: center;
+  gap: 14px;
+}
+.mn-vol {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+.mn-vol input {
+  width: 120px;
+  accent-color: var(--mint-deep);
+}
+.mn-vol output {
+  font-variant-numeric: tabular-nums;
+  min-width: 3.2em;
+}
+.menu-dlg kbd {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 5px;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.pill.primary kbd {
+  color: inherit;
+  border-color: color-mix(in srgb, var(--cream-0) 40%, transparent);
+}
+/* keyboard hints mean nothing on a touch screen */
+@media (pointer: coarse) {
+  .menu-dlg kbd,
+  .tour-stop kbd {
+    display: none;
+  }
+}

@@ -161,10 +161,11 @@ export class World {
     return `Line the ${what} up in front of a claw.`;
   }
 
-  /** Can a gesture start now? Only standing still on all six feet, with nothing in the claws. */
-  canPlay(): boolean {
+  /** Can a gesture start now? Only standing still on all six feet, with nothing in the claws (and, unless
+   *  `overGesture`, no other gesture playing). */
+  canPlay(overGesture = false): boolean {
     const s = this.state;
-    return !s.clip && s.claw.phase === 'foot' && !s.claw.seq.length && !s.claw.waiting && !s.robot.active && !s.robot.carrier && s.snack.mode !== 'held';
+    return (overGesture || !s.clip) && s.claw.phase === 'foot' && !s.claw.seq.length && !s.claw.waiting && !s.robot.active && !s.robot.carrier && s.snack.mode !== 'held';
   }
 
   play(name: string, speed = 1): boolean {

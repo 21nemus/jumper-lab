@@ -16,7 +16,9 @@
     "test": "node --experimental-strip-types --no-warnings=ExperimentalWarning --test tests/*.test.ts",
     "upstream:lock": "node tools/upstream.mjs lock",
     "upstream:fetch": "node tools/upstream.mjs fetch",
-    "assets": "node tools/build-robot.mjs && node tools/build-motions.mjs",
+    "assets": "node tools/build-robot.mjs && node --experimental-strip-types --no-warnings=ExperimentalWarning tools/build-motions.mjs && npm run dance && npm run crowd",
+    "dance": "node --experimental-strip-types --no-warnings=ExperimentalWarning tools/build-dance.mjs",
+    "crowd": "node --experimental-strip-types --no-warnings=ExperimentalWarning tools/build-crowd.mjs",
     "check:assets": "node tools/check-assets.mjs"
   },
   "dependencies": {

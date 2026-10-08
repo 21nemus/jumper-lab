@@ -58,8 +58,8 @@
   opacity: 0;
   transition: opacity 0.9s;
   color: var(--charcoal);
-  background: color-mix(in srgb, var(--cream-0) 86%, transparent);
-  backdrop-filter: blur(8px);
+  background: color-mix(in srgb, var(--cream-0) 72%, transparent);
+  backdrop-filter: blur(5px);
   z-index: 9;
 }
 .tour-end.on {

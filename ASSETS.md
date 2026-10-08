@@ -15,6 +15,7 @@ and notice ship next to the files. Sources are pinned in [`SOURCES.md`](SOURCES.
 | `assets/motions/bow.json` | 65 KB / 14 KB | Recorded "bow", 8.56 s. |
 | `assets/motions/salute.json` | 46 KB / 8 KB | Recorded "salute", 6.02 s. |
 | `assets/motions/paw.json` | 48 KB / 7 KB | Recorded "offer a paw", 6.38 s. |
+| `assets/robot/jumper-crowd.glb` | 57 KB / 30 KB | The crab-rave crowd's robot: `jumper.glb` simplified to 8,012 triangles (about 5 %), one node per link. Loaded only when a crab rave starts. |
 | `assets/robot/LICENSE-jumper-apache-2.0.txt`, `assets/robot/NOTICE-jumper.txt` | — | Upstream's license and notice, unchanged. |
 
 ## Original to JUMPER LAB (MIT)
@@ -24,6 +25,9 @@ and notice ship next to the files. Sources are pinned in [`SOURCES.md`](SOURCES.
 - **Textures:** all drawn procedurally at load in `src/scene/textures.ts`. There are no image downloads.
 - **Display expressions:** the eye animation in `src/robot/eyes.ts`. It is our animation layer, not the robot's software.
 - **`og-image.jpg`** (94 KB): a real frame rendered by the app with the title composited on top.
+- **The music:** an original electro loop (`src/audio/score.ts`), synthesized live in the browser with the Web Audio API (`src/audio/music.ts`). There is no audio file. It is not "Crab Rave" by Noisestorm and quotes none of it.
+- **`assets/motions/rave.json`** (166 KB / 40 KB): the crab-rave choreography, generated from the model by `tools/build-dance.mjs` (`src/sim/dance.ts`). It is not a KingKong recording.
+- **`assets/motions/scuttle.json`** (7 KB / 3 KB): one period of this game's gait controller crab-walking sideways, for the crowd to loop.
 
 ## Libraries and fonts bundled into the build
 
@@ -43,10 +47,11 @@ and notice ship next to the files. Sources are pinned in [`SOURCES.md`](SOURCES.
 | `jumper.glb` | 511 KB raw (375 KB if the host gzips `.glb`) |
 | **Total before first play** | **≈ 0.64–0.76 MB** |
 | Gestures (loaded after the robot) | 37 KB |
+| Crab rave, on first use (dance, crowd robot, scuttle cycle) | ~73 KB |
 
 ## Not used, on purpose
 
 - Upstream's ONNX/RKNN policies, controller binaries and `jumper.app`.
 - The training stack and the collision hulls.
 - jumper-design's skins and maps, which include third-party characters.
-- Any KingKong product-page media and any music.
+- Any KingKong product-page media, and any third-party music. A commenter asked for "Crab Rave". It is Noisestorm's track, released by Monstercat, so it is not shipped here; the soundtrack is original.
