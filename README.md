@@ -133,7 +133,7 @@ Step heights are small (about 1–2.5 cm): at the calibrated standing pose the k
 `dist/` is a static site with relative paths, so it works from any sub-path, for example a GitHub Pages
 project site.
 
-- **Before publishing:** set absolute URLs for the `og:image` / `twitter:image` tags in `index.html` (commented out until the URL is confirmed). X only shows a large preview card with an absolute image URL.
+- **Live site:** [21nemus.github.io/jumper-lab](https://21nemus.github.io/jumper-lab/). The preview-card tags in `index.html` use absolute URLs on that address (X only shows a large card with an absolute image URL); change them if the site moves.
 - **GitHub Pages:** `.github/workflows/pages.yml` tests, builds and deploys `dist/` on every push to `main`. In the repository, set Settings → Pages → Source to "GitHub Actions".
 - **Repository:** [github.com/21nemus/jumper-lab](https://github.com/21nemus/jumper-lab).
 
