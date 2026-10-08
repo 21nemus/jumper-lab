@@ -387,7 +387,8 @@ export async function startApp(app: HTMLElement): Promise<AppContext | null> {
 
   function present(dt: number, now: number): void {
     const s = world.state;
-    ctx.music.muffle(ctx.frozen || ctx.mode !== 'play'); // as if behind a door while frozen or building
+    // as if behind a door while frozen, or while a player is building (the tour's Build shot keeps it open)
+    ctx.music.muffle(ctx.frozen || (ctx.mode === 'build' && !document.body.classList.contains('touring')));
     if (s.mission.status !== lastStatus) lastStatus = s.mission.status;
 
     // reach rings (a few times per second is plenty)

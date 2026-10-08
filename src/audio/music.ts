@@ -494,3 +494,42 @@ export async function renderOffline(plan: Cue[], seconds: number, volume = DEFAU
   for (let step = 0; step * STEP_SEC < seconds - 0.5; step++) for (const h of song.at(step)) play(G, h, 0.05 + step * STEP_SEC);
   return c.startRendering();
 }
+
+/**
+ * Render a recorded session offline (for exporting a video's soundtrack): the plans in the order they were
+ * played, each spliced in at the bar it took effect (`bar`, a song step; the first starts the song), the times
+ * the music was muffled, and when it was stopped. Same fade-in and fade-out as live playback.
+ */
+export async function renderSession(calls: { bar: number; plan: Cue[] }[], muffles: [number, boolean][], stopAt: number | null, seconds: number, volume = DEFAULT_VOLUME): Promise<AudioBuffer> {
+  const rate = 44100;
+  const c = new OfflineAudioContext(2, Math.ceil(seconds * rate), rate);
+  const G = buildGraph(c);
+  const level = LEVEL * volume;
+  const g = G.master.gain;
+  g.setValueAtTime(0, 0);
+  g.linearRampToValueAtTime(level, FADE_IN);
+  const f = G.muffle.frequency;
+  f.setValueAtTime(18000, 0);
+  for (const [t, on] of muffles) {
+    f.setValueAtTime(on ? 18000 : 650, t);
+    f.exponentialRampToValueAtTime(on ? 650 : 18000, t + (on ? 0.25 : 0.4));
+    g.setValueAtTime(on ? level : level * 0.65, Math.max(FADE_IN, t));
+    g.linearRampToValueAtTime(on ? level * 0.65 : level, Math.max(FADE_IN, t) + 0.25);
+  }
+  if (stopAt !== null) {
+    g.setValueAtTime(level, stopAt);
+    g.linearRampToValueAtTime(0, stopAt + 1.6);
+  }
+  const song = new Song(calls[0].plan[0][1] as Section);
+  song.add(0, calls[0].plan.slice(1));
+  let k = 1;
+  for (let step = 0; step * STEP_SEC < seconds; step++) {
+    while (k < calls.length && calls[k].bar <= step) {
+      song.cues = song.cues.filter(([s]) => s < calls[k].bar);
+      song.add(calls[k].bar, calls[k].plan);
+      k++;
+    }
+    for (const h of song.at(step)) play(G, h, step * STEP_SEC);
+  }
+  return c.startRendering();
+}
